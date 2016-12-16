@@ -3,10 +3,8 @@ Sample workflows to dynamically provision WebSphere Liberty servers using IBM Cl
 
 # Getting Started
 	
-	IBM Cloud Provisioning and Management for z/OS is a feature within z/OSMF. It provides the capability for users to dynamically 
-	provision middleware resources in a cloud environment. Workflows (made up of XML files, scripts, and properties files) plugin 
-	and can be dynamically executed to provision and deprovision resource instances as well as perform various actions on them. 
-	These sample workflows are for provisioning WebSphere Liberty and can be configured and customized.
+	IBM Cloud Provisioning and Management for z/OS is a feature within z/OSMF. It provides the capability 
+	for users to dynamically provision middleware resources in a cloud environment. Workflows (made up of XML files,   scripts, and properties files) plugin and can be dynamically executed to provision and deprovision resource instances as well as perform various actions on them. These sample workflows are for provisioning WebSphere Liberty and can be configured and customized.
 	
 # Prerequisites 
 
