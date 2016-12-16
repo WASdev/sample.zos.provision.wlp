@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>zosTransaction-1.0</feature>
+        <feature>jdbc-4.0</feature>
+    </featureManager>
+    
+    <dataSource id="${instance-DB2_REGISTRY_NAME}" jndiName="${instance-DB2_JNDI_NAME}" type="javax.sql.ConnectionPoolDataSource">
+        <jdbcDriver libraryRef="DB2JCC4Lib_${instance-DB2_REGISTRY_NAME}"/>
+        <properties.db2.jcc driverType="2" databaseName="${instance-DB2_LOCATION}"/>
+    </dataSource>
+
+    <library id="DB2JCC4Lib_${instance-DB2_REGISTRY_NAME}">
+        <fileset dir="${instance-DB2_JDBC_DRIVER}/classes" includes="db2jcc4.jar db2jcc_license_cisuz.jar"/>
+        <fileset dir="${instance-DB2_JDBC_DRIVER}/lib" includes="*"/>
+    </library>
+    
+</server>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>jsp-2.2</feature>
+		<feature>osgiconsole-1.0</feature>
+		<feature>servlet-3.0</feature>
+		<feature>appSecurity-2.0</feature>
+		<feature>localConnector-1.0</feature>
+        <feature>restConnector-1.0</feature>
+        <feature>zosSecurity-1.0</feature>
+    </featureManager>
+
+    <httpEndpoint id="defaultHttpEndpoint" host="${instance-IP_ADDRESS}"
+                  httpPort="${instance-HTTP_PORT}"
+                  httpsPort="${instance-HTTPS_PORT}">
+                  <tcpOptions soReuseAddr="true" />
+    </httpEndpoint>
+
+    <remoteFileAccess>
+            <writeDir>${instance-WLP_USER_DIR}</writeDir>
+            <writeDir>${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/logs</writeDir>
+            <writeDir>${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}</writeDir>
+            <writeDir>${instance-WLP_USER_DIR}/servers</writeDir>
+    </remoteFileAccess>
+
+    <safRegistry id="saf" />
+    <safAuthorization id="safAuth" />
+    <safCredentials profilePrefix="${_workflow-softwareServiceInstanceName}" unauthenticatedUser="${instance-UNAUTH_USER}"/>
+    
+</server>
