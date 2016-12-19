@@ -9,7 +9,7 @@ IBM Cloud Provisioning and Management for z/OS is a feature within z/OSMF. It pr
 
  * IBM Cloud Provisioning and Management for z/OS is required.
  
- * An installation of WebSphere Liberty 8.5.5.8 or later is required.
+ * An installation of WebSphere Liberty 8.5.5.8, 8.5.5.7 w/ iFix PI47476, or 16.x.x.x is required.
  
  
 # Setup
