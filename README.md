@@ -14,7 +14,7 @@ IBM Cloud Provisioning and Management for z/OS is a feature within z/OSMF. It pr
  
 # Setup
 
-1. Download the workflow files to a z/OS system running IBM Cloud Provisioning and Management. (workflows/templates/wlp-provisioning.sh may need to be converted to EBCDIC)
+1. Download the workflow files to a z/OS system running IBM Cloud Provisioning and Management. (workflows/templates/wlp-provisioning.sh may need to be converted to EBCDIC. This is due to how this script is executed at runtime.)
 2. Use the Setup_and_Configuration PDF for a list of capabilities and configuration options.
 3. Configure the workflow_variables.properties file.
 3. Create a new template for the Liberty workflows following the instructions in IBM Cloud Provisioning and Management.
