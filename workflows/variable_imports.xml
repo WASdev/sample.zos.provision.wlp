@@ -29,7 +29,15 @@
   <variable name="JAVA_HOME" visibility="private">
       <label>JAVA_HOME</label>
       <abstract>Java home path</abstract>
-      <description>The path to the Java home directory.</description>
+      <description>The path to the Java home directory</description>
+      <category>String Variables</category>
+      <string />
+  </variable>
+  
+  <variable name="TEMP_DIR" visibility="private">
+      <label>TEMP_DIR</label>
+      <abstract>temp directory</abstract>
+      <description>The path to a temp directory for files created and removed at runtime</description>
       <category>String Variables</category>
       <string />
   </variable>
@@ -278,6 +286,14 @@
 	<!-- Start option variables -->
     <!--++++++++++++++++++++++++-->
     
+    <variable name="START_INSTANCE" visibility="private">
+      <label>START_INSTANCE</label>
+      <abstract>Auto start the server</abstract>
+      <description>Flag indicating whether or not to start the server after provisioning</description>
+      <category>String Variables</category>
+      <string />
+    </variable>
+    
 	<variable name="START_SERVER_AS_STARTED_TASK" visibility="private">
 		<label>START_SERVER_AS_STARTED_TASK</label>
 		<abstract>Start server as started task</abstract>
@@ -445,6 +461,22 @@
       <description>The user id to approval proclib additions</description>
       <category>String Variables</category>
       <string />
+    </variable>
+    
+    <!--++++++++++++++++++++++++++++++-->
+    <!--   ZOSPT specific vairables   -->
+    <!--++++++++++++++++++++++++++++++-->
+    
+    <variable name="ZOSPT_VERSION_SUPPORTED" scope="global" visibility="public">
+        <label>ZOSPT_VERSION_SUPPORTED</label>
+        <abstract>z/OS Provisioning Toolkit specification level supported</abstract>
+        <description>The version number of the z/OS Provisioning Toolkit specification supported by the template.</description>
+        <category>ZOSPT</category>
+        <string>
+
+            <default>1.0.1</default>
+
+        </string>
     </variable>
     
     

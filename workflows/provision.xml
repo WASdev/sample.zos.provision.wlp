@@ -69,7 +69,7 @@
 	        <autoEnable>true</autoEnable>
 			<template>
 		    	<inlineTemplate substitution="true">
-                    echo WLP_USER $(whoami) > "/tmp/wlp-${_workflow-softwareServiceInstanceName}-user"
+                    echo WLP_USER $(whoami) > "${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-user"
 	           	</inlineTemplate>
 	           	<submitAs>shell-JCL</submitAs>
 	        </template>
@@ -104,10 +104,10 @@
 	        <autoEnable>true</autoEnable>
 			<template>
 		    	<inlineTemplate substitution="true">
-	           	cat "/tmp/wlp-${_workflow-softwareServiceInstanceName}-user"
+	           	cat "${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-user"
 	           	</inlineTemplate>
 	           	<submitAs>shell-JCL</submitAs>
-	           	<output substitution="true" needResolveConflicts="false">/tmp/wlp-${_workflow-softwareServiceInstanceName}-user</output>
+	           	<output substitution="true" needResolveConflicts="false">${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-user</output>
 	       	</template>
 	    </step>
 	    <step name="removeUserOutputFile">
@@ -135,8 +135,8 @@
 	        <autoEnable>true</autoEnable>
 			<template>
 		    	<inlineTemplate substitution="true">
-		    	if [ -f /tmp/wlp-${_workflow-softwareServiceInstanceName}-user ]; then
-	           	    rm /tmp/wlp-${_workflow-softwareServiceInstanceName}-user
+		    	if [ -f ${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-user ]; then
+	           	    rm ${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-user
 	           	fi
 	           	</inlineTemplate>
 	           	<submitAs>shell-JCL</submitAs>
@@ -158,10 +158,10 @@
 		    	<inlineTemplate substitution="true">
 		    	   if [ ${instance-MOUNT_POINT} != "" ]; then
 		    	        path=$(echo ${instance-MOUNT_POINT} | sed 's@/$@@')
-		    	        echo WLP_USER_DIR $path/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName} > "/tmp/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}"
+		    	        echo WLP_USER_DIR $path/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName} > "${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}"
 		    	   else
 	           	        path=$(echo ~${instance-WLP_USER} | sed 's@/$@@')
-                        echo WLP_USER_DIR $path/wlp-${_workflow-softwareServiceInstanceName} > "/tmp/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}"
+                        echo WLP_USER_DIR $path/wlp-${_workflow-softwareServiceInstanceName} > "${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}"
 	           	   fi
 		    	    
 	           	</inlineTemplate>
@@ -176,10 +176,10 @@
 	        <autoEnable>true</autoEnable>
 			<template>
 		    	<inlineTemplate substitution="true">
-	           	cat "/tmp/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}"
+	           	cat "${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}"
 	           	</inlineTemplate>
 	           	<submitAs>shell-JCL</submitAs>
-	           	<output substitution="true" needResolveConflicts="false">/tmp/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}</output>
+	           	<output substitution="true" needResolveConflicts="false">${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}</output>
 	       	</template>
 	    </step>
 	    <step name="removeUserDirOutputFile">
@@ -190,7 +190,7 @@
 	        <autoEnable>true</autoEnable>
 			<template>
 		    	<inlineTemplate substitution="true">
-		    	rm /tmp/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}
+		    	rm ${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}
 	           	</inlineTemplate>
 	           	<submitAs>shell-JCL</submitAs>
 	       	</template>
@@ -209,7 +209,7 @@
 	        <autoEnable>true</autoEnable>
 			<template>
 		    	<inlineTemplate substitution="true">
-                    echo JOB_NAME ${_workflow-softwareServiceInstanceName} > "/tmp/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}"
+                    echo JOB_NAME ${_workflow-softwareServiceInstanceName} > "${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}"
 	           	</inlineTemplate>
 	           	<submitAs>shell-JCL</submitAs>
 	        </template>
@@ -222,10 +222,10 @@
 	        <autoEnable>true</autoEnable>
 			<template>
 		    	<inlineTemplate substitution="true">
-	           	cat "/tmp/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}"
+	           	cat "${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}"
 	           	</inlineTemplate>
 	           	<submitAs>shell-JCL</submitAs>
-	           	<output substitution="true" needResolveConflicts="false">/tmp/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}</output>
+	           	<output substitution="true" needResolveConflicts="false">${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}</output>
 	       	</template>
 	    </step>
 	    <step name="removeJobnameOutputFile">
@@ -236,8 +236,8 @@
 	        <autoEnable>true</autoEnable>
 			<template>
 		    	<inlineTemplate substitution="true">
-		    	if [ -f /tmp/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER} ]; then
-	           	    rm /tmp/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}
+		    	if [ -f ${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER} ]; then
+	           	    rm ${instance-TEMP_DIR}/wlp-${_workflow-softwareServiceInstanceName}-${instance-WLP_USER}
 	           	fi
 	           	</inlineTemplate>
 	           	<submitAs>shell-JCL</submitAs>
@@ -436,7 +436,7 @@
 	        <autoEnable>true</autoEnable>
 	        <template>
 	            <fileTemplate substitution="true">templates/wlp-provisioning.sh</fileTemplate>
-	            <saveAsUnixFile substitution="true">/tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh</saveAsUnixFile>
+	            <saveAsUnixFile substitution="true">${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh</saveAsUnixFile>
 	        </template>
         </step>
         <step name="setScriptPermissions">
@@ -447,7 +447,7 @@
 	        <autoEnable>true</autoEnable>
 			<template>
 		    	<inlineTemplate substitution="true">
-	           	chmod 755 /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh
+	           	chmod 755 ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh
 	           	</inlineTemplate>
 	           	<submitAs>shell-JCL</submitAs>
 	       	</template>
@@ -547,9 +547,9 @@
             <inlineTemplate substitution="true">
             #Check if we need to su to the user.
             if [ "${instance-WLP_USER}" = $(whoami) ]; then
-                /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --create
+                ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --create
             else
-                su -s ${instance-WLP_USER} -c "/tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --create"
+                su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --create"
             fi
             </inlineTemplate>
             <submitAs>shell-JCL</submitAs>
@@ -581,9 +581,9 @@
         	<template>
            		<inlineTemplate substitution="true">
             	if [ "${instance-WLP_USER}" = $(whoami) ]; then
-            	    /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configure 
+            	    ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configure 
             	else
-            	    su -s ${instance-WLP_USER} -c "/tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configure"
+            	    su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configure"
             	fi
             	</inlineTemplate>
             	<submitAs>shell-JCL</submitAs>
@@ -684,9 +684,9 @@
 	        <template>
 	            <inlineTemplate substitution="true">
 	            if [ "${instance-WLP_USER}" = $(whoami) ]; then
-	                /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureKeystore
+	                ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureKeystore
 	            else
-	                su -s ${instance-WLP_USER} -c "/tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureKeystore"
+	                su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureKeystore"
 	            fi
 	            </inlineTemplate>
 	            <submitAs>shell-JCL</submitAs>
@@ -861,9 +861,9 @@
 	        <template>
             <inlineTemplate substitution="true">
             if [ "${instance-WLP_USER}" = $(whoami) ]; then
-                /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureDatasource ${instance-DB2_HLQ}
+                ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureDatasource ${instance-DB2_HLQ}
             else
-                su -s ${instance-WLP_USER} -c "/tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureDatasource ${instance-DB2_HLQ}"
+                su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureDatasource ${instance-DB2_HLQ}"
             fi
             </inlineTemplate>
             <submitAs>shell-JCL</submitAs>
@@ -897,9 +897,9 @@
 			<template>
 		    	<inlineTemplate substitution="true">
             if [ "${instance-WLP_USER}" = $(whoami) ]; then
-                /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureServerProc ${instance-DB2_HLQ}
+                ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureServerProc ${instance-DB2_HLQ}
             else
-                su -s ${instance-WLP_USER} -c "/tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureServerProc ${instance-DB2_HLQ}"
+                su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureServerProc ${instance-DB2_HLQ}"
             fi
             	</inlineTemplate>
             	<submitAs>shell-JCL</submitAs>
@@ -1001,6 +1001,11 @@
         				<expression><![CDATA[ ${instance_START_SERVER_AS_STARTED_TASK} == "TRUE"]]></expression>
         				<targetState>Skipped</targetState>
        				</extendStateExpression>
+       				<extendStateExpression>
+				      	<description>Skip if START_INSTANCE == FALSE</description>
+			            <expression><![CDATA[ ${instance_START_INSTANCE} == "FALSE"]]></expression>
+				      	<targetState>Skipped</targetState>
+				    </extendStateExpression>
       			</targetStateSet>
      		</condition>
      		<instructions substitution="true">Submit shell script to execute step</instructions>
@@ -1009,9 +1014,9 @@
         	<template>
             	<inlineTemplate substitution="true">
             if [ "${instance-WLP_USER}" = $(whoami) ]; then
-                /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --start ${instance-WLP_USER_DIR}
+                ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --start ${instance-WLP_USER_DIR}
             else
-                su -s ${instance-WLP_USER} -c "/tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --start"
+                su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --start"
             fi
             	</inlineTemplate>
             	<submitAs>shell-JCL</submitAs>
@@ -1033,6 +1038,11 @@
         				<expression><![CDATA[ ${instance_START_SERVER_AS_STARTED_TASK} != "TRUE"]]></expression>
         				<targetState>Skipped</targetState>
        				</extendStateExpression>
+       				<extendStateExpression>
+				      	<description>Skip if START_INSTANCE == FALSE</description>
+			            <expression><![CDATA[ ${instance_START_INSTANCE} == "FALSE"]]></expression>
+				      	<targetState>Skipped</targetState>
+				    </extendStateExpression>
       			</targetStateSet>
      		</condition>
      		<instructions substitution="true">Submit JCL to execute step</instructions>
@@ -1046,7 +1056,8 @@
     "cmd" : "START ${_workflow-softwareServiceInstanceName},PARMS='${_workflow-softwareServiceInstanceName}'",
     "unsol-key" : "CWWKF0011I: The server ${_workflow-softwareServiceInstanceName}",
     "unsol-detect-sync" : "Y",
-    "unsol-detect-timeout" : "120"  
+    "unsol-detect-timeout" : "120",
+    "system" : "${_workflow-systemName}"
   }	
 				</requestBody>
 				<expectedStatusCode>200</expectedStatusCode>
@@ -1057,12 +1068,12 @@
     <step name="removeTempFiles">
         <title>Remove Temp Files</title>
         <description>Remove the temp files created by this workflow</description>
-        <instructions substitution="true">Remove the files copied to /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-*</instructions>
+        <instructions substitution="true">Remove the files copied to ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-*</instructions>
         <weight>1</weight>
         <autoEnable>true</autoEnable>
 		<template>
 	    	<inlineTemplate substitution="true">
-           	rm /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}*
+           	rm ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}*
            	</inlineTemplate>
            	<submitAs>shell-JCL</submitAs>
        	</template>

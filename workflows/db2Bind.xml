@@ -65,7 +65,7 @@
 	        <autoEnable>true</autoEnable>
 	        <template>
 	            <fileTemplate substitution="true">templates/wlp-provisioning.sh</fileTemplate>
-	            <saveAsUnixFile substitution="true">/tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh</saveAsUnixFile>
+	            <saveAsUnixFile substitution="true">${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh</saveAsUnixFile>
 	        </template>
         </step>
         <step name="setScriptPermissions">
@@ -76,7 +76,7 @@
 	        <autoEnable>true</autoEnable>
 			<template>
 		    	<inlineTemplate substitution="true">
-	           	chmod 755 /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh
+	           	chmod 755 ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh
 	           	</inlineTemplate>
 	           	<submitAs>shell-JCL</submitAs>
 	       	</template>
@@ -108,9 +108,9 @@
         	<template>
             	<inlineTemplate substitution="true">
             	if [ "${instance-WLP_USER}" = $(whoami) ]; then
-            	    /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --stop
+            	    ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --stop
             	else
-            	    su -s ${instance-WLP_USER} -c "/tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --stop"
+            	    su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --stop"
             	fi
             	</inlineTemplate>
             	<submitAs>shell-JCL</submitAs>
@@ -149,7 +149,8 @@
 	    "cmd" : "STOP ${_workflow-softwareServiceInstanceName}",
 	    "unsol-key" : "DUMMY",
         "unsol-detect-sync" : "Y",
-        "unsol-detect-timeout" : "10"
+        "unsol-detect-timeout" : "10",
+        "system" : "${_workflow-systemName}"
 	  }	
 					</requestBody>
 					<expectedStatusCode>200</expectedStatusCode>
@@ -182,7 +183,8 @@
 					<requestBody substitution="true">
 	  {
 	    "cmd" : "d a,${_workflow-softwareServiceInstanceName}",
-		"sol-key" : "NOT FOUND"
+		"sol-key" : "NOT FOUND",
+		"system" : "${_workflow-systemName}"
 	  }	
 					</requestBody>
 					<expectedStatusCode>200</expectedStatusCode>
@@ -221,6 +223,7 @@
 					<requestBody substitution="true">
 	  {
 	    "cmd" : "C ${_workflow-softwareServiceInstanceName}",
+	    "system" : "${_workflow-systemName}"
 	  }	
 					</requestBody>
 					<expectedStatusCode>200</expectedStatusCode>
@@ -359,9 +362,9 @@
         <template>
             <inlineTemplate substitution="true">
             if [ "${instance-WLP_USER}" = $(whoami) ]; then
-                /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureDatasource ${instance-DB2_HLQ}
+                ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureDatasource ${instance-DB2_HLQ}
             else
-                su -s ${instance-WLP_USER} -c "/tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureDatasource ${instance-DB2_HLQ}"
+                su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureDatasource ${instance-DB2_HLQ}"
             fi
             </inlineTemplate>
             <submitAs>shell-JCL</submitAs>
@@ -441,15 +444,15 @@
        				</extendStateExpression>
       			</targetStateSet>
      		</condition>
-     		<instructions substitution="true">Submit the /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh script to start the server.</instructions>
+     		<instructions substitution="true">Submit the ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh script to start the server.</instructions>
         	<weight>1</weight>
         	<autoEnable>true</autoEnable>
         	<template>
             	<inlineTemplate substitution="true">
             if [ "${instance-WLP_USER}" = $(whoami) ]; then
-                /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --start ${instance-WLP_USER_DIR}
+                ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --start ${instance-WLP_USER_DIR}
             else
-                su -s ${instance-WLP_USER} -c "/tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --start"
+                su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --start"
             fi
             	</inlineTemplate>
             	<submitAs>shell-JCL</submitAs>
@@ -484,7 +487,8 @@
     "cmd" : "START ${_workflow-softwareServiceInstanceName},PARMS='${_workflow-softwareServiceInstanceName}'",
     "unsol-key" : "CWWKF0011I: The server ${_workflow-softwareServiceInstanceName}",
     "unsol-detect-sync" : "Y",
-    "unsol-detect-timeout" : "120"
+    "unsol-detect-timeout" : "120",
+    "system" : "${_workflow-systemName}"
   }	
 				</requestBody>
 				<expectedStatusCode>200</expectedStatusCode>
@@ -572,12 +576,12 @@
     <step name="removeTempFiles">
         <title>Remove Temp Files</title>
         <description>Remove the temp files created by this workflow</description>
-        <instructions substitution="true">Remove the files copied to /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-*</instructions>
+        <instructions substitution="true">Remove the files copied to ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-*</instructions>
         <weight>1</weight>
         <autoEnable>true</autoEnable>
 		<template>
 	    	<inlineTemplate substitution="true">
-           	rm /tmp/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-*
+           	rm ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-*
            	</inlineTemplate>
            	<submitAs>shell-JCL</submitAs>
        	</template>
