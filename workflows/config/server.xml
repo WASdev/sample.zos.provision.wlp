@@ -12,21 +12,24 @@
         <feature>zosSecurity-1.0</feature>
     </featureManager>
 
-    <httpEndpoint id="defaultHttpEndpoint" host="${instance-IP_ADDRESS}"
-                  httpPort="${instance-HTTP_PORT}"
-                  httpsPort="${instance-HTTPS_PORT}">
+    <httpEndpoint id="defaultHttpEndpoint" host="${ip.address}"
+                  httpPort="${http.port}"
+                  httpsPort="${https.port}">
                   <tcpOptions soReuseAddr="true" />
     </httpEndpoint>
 
     <remoteFileAccess>
-            <writeDir>${instance-WLP_USER_DIR}</writeDir>
-            <writeDir>${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/logs</writeDir>
-            <writeDir>${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}</writeDir>
-            <writeDir>${instance-WLP_USER_DIR}/servers</writeDir>
+            <writeDir>${wlp.user.dir}</writeDir>
+            <writeDir>${wlp.user.dir}/servers</writeDir>
+            <writeDir>${wlp.user.dir}/servers/${wlp.instance.name}</writeDir>
+            <writeDir>${wlp.user.dir}/servers/${wlp.instance.name}/logs</writeDir>
     </remoteFileAccess>
 
     <safRegistry id="saf" />
     <safAuthorization id="safAuth" />
-    <safCredentials profilePrefix="${_workflow-softwareServiceInstanceName}" unauthenticatedUser="${instance-UNAUTH_USER}"/>
+    <safCredentials profilePrefix="${wlp.instance.name}" unauthenticatedUser="${unauthenticated.user}"/>
+    
+    <include location="keystore.xml" optional="false" />
+    <include location="datasource.xml" optional="true" />
     
 </server>

@@ -68,6 +68,21 @@
 		    <wfVar name="CONSOLE_NAME">${CONSOLE_NAME}</wfVar>
 		</workflow>
 	</action>
+	<action name="checkStatus">
+		<workflow>
+			<wfDefFile>./checkStatus.xml</wfDefFile>
+			<wfVarInFile>../properties/workflow_variables.properties</wfVarInFile>
+			<!-- Obtain values for the properties from
+			the registry entry associated with the provisioning
+			workflow. -->
+			<wfVar name="WLP_INSTALL_DIR">${WLP_INSTALL_DIR}</wfVar>
+			<wfVar name="WLP_USER_DIR">${WLP_USER_DIR}</wfVar>
+			<wfVar name="JAVA_HOME">${JAVA_HOME}</wfVar>
+			<wfVar name="START_SERVER_AS_STARTED_TASK">${START_SERVER_AS_STARTED_TASK}</wfVar>
+			<wfVar name="CONSOLE_NAME">${CONSOLE_NAME}</wfVar>
+			<wfVar name="SERVER_STOPPED">${SERVER_STOPPED}</wfVar>
+		</workflow>
+	</action>
 	<action name="deprovision">
 		<workflow>
 			<wfDefFile>./deprovision.xml</wfDefFile>

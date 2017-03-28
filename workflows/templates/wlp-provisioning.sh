@@ -45,8 +45,6 @@ configure()
 
 configureDatasource()
 {   
-    DB2_HLQ=$1
-    
     export JAVA_HOME="${instance-JAVA_HOME}"
 	export WLP_INSTALL_DIR="${instance-WLP_INSTALL_DIR}"
 	export WLP_USER_DIR="${instance-WLP_USER_DIR}"
@@ -58,15 +56,6 @@ configureDatasource()
 	iconv -f IBM-1047 -t ISO8859-1 $WLP_USER_DIR/servers/$WLP_SERVER_NAME/datasource.xml > $WLP_USER_DIR/servers/$WLP_SERVER_NAME/datasource.xml.tmp
 	mv $WLP_USER_DIR/servers/$WLP_SERVER_NAME/datasource.xml.tmp $WLP_USER_DIR/servers/$WLP_SERVER_NAME/datasource.xml
 	chtag -t -c iso8859-1 $WLP_USER_DIR/servers/$WLP_SERVER_NAME/datasource.xml
-    
-	# Add include statement to server.xml
-	sed -W filecodeset=ISO8859-1 '/<\/server>/d' $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml > $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml.tmp
-	echo "<include location=\"$WLP_USER_DIR/servers/$WLP_SERVER_NAME/datasource.xml\" />" >> $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml.tmp
-    echo "</server>" >> $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml.tmp
-    iconv -f IBM-1047 -t ISO8859-1 $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml.tmp > $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml
-    rm $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml.tmp
-	chtag -t -c iso8859-1 $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml
-	
 	
 	# Create db2jcc.properties file
 	echo "db2.jcc.ssid=${instance-DB2_REGISTRY_NAME}" > $WLP_USER_DIR/servers/$WLP_SERVER_NAME/db2jcc.properties
@@ -75,7 +64,10 @@ configureDatasource()
 	echo "-Ddb2.jcc.propertiesFile=$WLP_USER_DIR/servers/$WLP_SERVER_NAME/db2jcc.properties" > $WLP_USER_DIR/servers/$WLP_SERVER_NAME/jvm.options
 	
 	# Add STEPLIB datasets to server.env
-	echo "STEPLIB=$DB2_HLQ.SDSNEXIT:$DB2_HLQ.SDSNLOAD:$DB2_HLQ.SDSNLOD2" >> $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.env
+	echo "STEPLIB=${instance-DB2_HLQ}.SDSNEXIT:${instance-DB2_HLQ}.SDSNLOAD:${instance-DB2_HLQ}.SDSNLOD2" >> $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.env
+
+	# Add datasource properties to bootstrap 
+	echo "\nbootstrap.include=./datasource.properties" >> $WLP_USER_DIR/servers/$WLP_SERVER_NAME/bootstrap.properties
 }
 
 removeDatasource()
@@ -102,16 +94,19 @@ removeDatasource()
     sed '/STEPLIB/d' $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.env > $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.env.tmp
 	mv $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.env.tmp $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.env
 	
-    #Remove db2Bind.xml
+    #Remove datasource.xml
     if [ -e  "$WLP_USER_DIR/servers/$WLP_SERVER_NAME/datasource.xml" ]; then
         rm "$WLP_USER_DIR/servers/$WLP_SERVER_NAME/datasource.xml"
     fi
     
-    # Remove include statement in server.xml
-	sed -W filecodeset=ISO8859-1 '/datasource.xml/d' $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml > $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml.tmp
-	iconv -f IBM-1047 -t ISO8859-1 $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml.tmp > $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml
-    rm $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml.tmp
-	chtag -t -c iso8859-1 $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml
+    # Remove datasource.properties
+	if [ -e  "$WLP_USER_DIR/servers/$WLP_SERVER_NAME/datasource.properties" ]; then
+        rm "$WLP_USER_DIR/servers/$WLP_SERVER_NAME/datasource.properties"
+    fi
+    
+    # Remove datasource properties from bootstrap 
+    sed '/bootstrap.include/d' $WLP_USER_DIR/servers/$WLP_SERVER_NAME/bootstrap.properties > $WLP_USER_DIR/servers/$WLP_SERVER_NAME/bootstrap.properties.tmp
+	mv $WLP_USER_DIR/servers/$WLP_SERVER_NAME/bootstrap.properties.tmp $WLP_USER_DIR/servers/$WLP_SERVER_NAME/bootstrap.properties
 } 
 
 configureKeystore()
@@ -127,20 +122,11 @@ configureKeystore()
 	iconv -f IBM-1047 -t ISO8859-1 $WLP_USER_DIR/servers/$WLP_SERVER_NAME/keystore.xml > $WLP_USER_DIR/servers/$WLP_SERVER_NAME/keystore.xml.tmp
 	mv $WLP_USER_DIR/servers/$WLP_SERVER_NAME/keystore.xml.tmp $WLP_USER_DIR/servers/$WLP_SERVER_NAME/keystore.xml
 	chtag -t -c iso8859-1 $WLP_USER_DIR/servers/$WLP_SERVER_NAME/keystore.xml
-
-	# Add include statement to server.xml for keystore.xml
-    sed -W filecodeset=ISO8859-1 '/<\/server>/d' $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml > $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml.tmp
-	echo "<include location=\"$WLP_USER_DIR/servers/$WLP_SERVER_NAME/keystore.xml\" />" >> $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml.tmp
-    echo "</server>" >> $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml.tmp
-    iconv -f IBM-1047 -t ISO8859-1 $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml.tmp > $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml
-    rm $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml.tmp
-	chtag -t -c iso8859-1 $WLP_USER_DIR/servers/$WLP_SERVER_NAME/server.xml
 	
 }
 
 configureServerProc()
 {
-	DB2_HLQ=$1
 	
 	# Copy the wlp bbgzsrv.jcl template proc into a tmp file
 	cp ${instance-WLP_INSTALL_DIR}/templates/zos/procs/bbgzsrv.jcl ${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/${_workflow-softwareServiceInstanceName}.jcl.tmp
@@ -148,10 +134,10 @@ configureServerProc()
 	# Edit proc template
 	sed "s#BBGZSRV PROC#${_workflow-softwareServiceInstanceName} PROC#" ${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/${_workflow-softwareServiceInstanceName}.jcl.tmp | sed "s#USERDIR='/u/MSTONE1/wlp/usr'#USERDIR='${instance-WLP_USER_DIR}'#" | sed "s#INSTDIR='/u/MSTONE1/wlp'#INSTDIR='${instance-WLP_INSTALL_DIR}'#" > ${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/${_workflow-softwareServiceInstanceName}.jcl
 	
-	if [ "$DB2_HLQ" != "" -a "$DB2_HLQ" != "DB2_HLQ" ]; then
-	    echo "//STEPLIB  DD DISP=SHR,DSN=$DB2_HLQ.SDSNEXIT" >> ${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/${_workflow-softwareServiceInstanceName}.jcl
-	    echo "//         DD DISP=SHR,DSN=$DB2_HLQ.SDSNLOD2" >> ${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/${_workflow-softwareServiceInstanceName}.jcl
-        echo "//         DD DISP=SHR,DSN=$DB2_HLQ.SDSNLOAD" >> ${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/${_workflow-softwareServiceInstanceName}.jcl
+	if [ "${instance-DB2_HLQ}" != "" -a "${instance-DB2_HLQ}" != "DB2_HLQ" ]; then
+	    echo "//STEPLIB  DD DISP=SHR,DSN=${instance-DB2_HLQ}.SDSNEXIT" >> ${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/${_workflow-softwareServiceInstanceName}.jcl
+	    echo "//         DD DISP=SHR,DSN=${instance-DB2_HLQ}.SDSNLOD2" >> ${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/${_workflow-softwareServiceInstanceName}.jcl
+        echo "//         DD DISP=SHR,DSN=${instance-DB2_HLQ}.SDSNLOAD" >> ${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/${_workflow-softwareServiceInstanceName}.jcl
 	
 	fi
 	# Add comments to proc

@@ -7,14 +7,14 @@
         <feature>jdbc-4.0</feature>
     </featureManager>
     
-    <dataSource id="${instance-DB2_REGISTRY_NAME}" jndiName="${instance-DB2_JNDI_NAME}" type="javax.sql.ConnectionPoolDataSource">
-        <jdbcDriver libraryRef="DB2JCC4Lib_${instance-DB2_REGISTRY_NAME}"/>
-        <properties.db2.jcc driverType="4" databaseName="${instance-DB2_LOCATION}" user="${instance-DB2_USERID}" password="${instance-DB2_PASSWORD}" serverName="${instance-DB2_HOSTNAME}" portNumber="${instance-DB2_PORT}" />
+    <dataSource id="db2" jndiName="${db2.jndi.name}" type="javax.sql.ConnectionPoolDataSource">
+        <jdbcDriver libraryRef="DB2JCC4Lib"/>
+        <properties.db2.jcc driverType="4" databaseName="${db2.location}" user="${db2.userid}" password="${db2.password}" serverName="${db2.hostname}" portNumber="${db2.port}" />
     </dataSource>
 
-    <library id="DB2JCC4Lib_${instance-DB2_REGISTRY_NAME}">
-        <fileset dir="${instance-DB2_JDBC_DRIVER}/classes" includes="db2jcc4.jar db2jcc_license_cisuz.jar"/>
-        <fileset dir="${instance-DB2_JDBC_DRIVER}/lib" includes="*"/>
+    <library id="DB2JCC4Lib">
+        <fileset dir="${db2.jdbc.driver}/classes" includes="db2jcc4.jar db2jcc_license_cisuz.jar"/>
+        <fileset dir="${db2.jdbc.driver}/lib" includes="*"/>
     </library>
     
 </server>

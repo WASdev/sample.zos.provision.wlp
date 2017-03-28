@@ -43,7 +43,7 @@
 	        <title>Get User</title>
 	        <description>Get the current user if WLP_USER is not set</description>
 	        <condition>
-	            <expression><![CDATA[ ${instance_WLP_INSTALL_DIR} != ""]]></expression>
+	            <expression><![CDATA["1" == "1"]]></expression>
 			    <description>Only perform if WLP_USER has not been set yet</description>
                 <targetStateSet>
 					<description>Set state to Ready if WLP_USER is not set, otherwise, skip.</description>
@@ -78,7 +78,7 @@
 	        <title>Set User</title>
 	        <description>Set WLP_USER to current user if not already set</description>
 	        <condition>
-	            <expression><![CDATA[ ${getUser.stepState}=="Complete" || ${getUser.stepState}=="Skipped"]]></expression>
+	            <expression><![CDATA["1" == "1"]]></expression>
 			    <description>Only perform if WLP_USER is not set</description>
                 <targetStateSet>
 					<description>Set state to Ready if WLP_USER is not set, otherwise, skip</description>
@@ -114,7 +114,7 @@
 	        <title>Remove User Output File</title>
 	        <description>Remove the temp file created</description>
 			<condition>
-	            <expression><![CDATA[ ${getUser.stepState}=="Complete" || ${getUser.stepState}=="Skipped"]]></expression>
+	            <expression><![CDATA["1" == "1"]]></expression>
 			    <description>Only perform if WLP_USER is not set</description>
                 <targetStateSet>
 					<description>Set state to Ready if previous steps completed</description>
@@ -336,7 +336,7 @@
 	        <title>Allocate DVIPA</title>
 	        <description>Allocate a DVIPA for this server</description>
 	        <condition>
-	            <expression><![CDATA[${resolveUserDir.stepState}=="Complete"]]></expression>
+	            <expression><![CDATA["1" == "1"]]></expression>
 			    <description>Check that previous step has completed</description>
                 <targetStateSet>
 					<description>Set state to Skipped if WLP_ENABLE_DVIPA does not equal TRUE</description>
@@ -424,9 +424,95 @@
 		</step>
 	</step>
 	
+	<step name="allocateDB2Resources">
+	<title>Allocate DB2 Resources</title>
+	<description>Allocate resources from a preset registry for the specified DB2 subsystem</description>
+	
+		<step name="getObjectID">
+			<title>Get DB2 object id</title>
+			<description>
+				Invoke RESTful API to determine the object id of the registry entry.
+			</description>
+
+			<condition>
+			    <expression><![CDATA["1" == "1"]]></expression>
+			    <description>Only perform when the Liberty server is created</description>
+                <targetStateSet>
+					<description>Only bind to DB2 if requested</description>
+					<extendStateExpression>
+						<description>Skip this step if registry name is null</description>
+						<expression><![CDATA[ ${instance_DB2_REGISTRY_NAME} == null]]></expression>
+						<targetState>Skipped</targetState>
+					</extendStateExpression>
+					<extendStateExpression>
+						<description>Skip this step if registry name is null string</description>
+						<expression><![CDATA[ ${instance_DB2_REGISTRY_NAME} == ""]]></expression>
+						<targetState>Skipped</targetState>
+					</extendStateExpression>
+				</targetStateSet>
+			</condition>
+			
+			<instructions substitution="true">Submit REST call to execute step</instructions>
+			<weight>10</weight>
+			<skills>SCR</skills>
+			<autoEnable>true</autoEnable>
+			<rest>
+				<httpMethod>GET</httpMethod>
+				<uriPath>/zosmf/provisioning/rest/1.0/scr/</uriPath>
+				<queryParameters substitution="true">external-name=${instance-DB2_REGISTRY_NAME}</queryParameters>
+				<expectedStatusCode>200</expectedStatusCode>
+				<propertyMapping mapTo="DB2_REGISTRY_ID">["scr-list"][0]["object-id"]</propertyMapping> 
+			</rest>
+		</step>
+		
+		<step name="getVariables">
+			<title>Get necessary DB2 data</title>
+			<description>
+				Invoke RESTful API to fetch the variables in the registry entry.
+			</description>
+			
+			<condition>
+			    <expression><![CDATA["1" == "1"]]></expression>
+			    <description>Only perform when the Liberty server is created</description>
+                <targetStateSet>
+					<description>Only bind to DB2 if requested</description>
+					<extendStateExpression>
+						<description>Skip this step if registry name is null</description>
+						<expression><![CDATA[ ${instance_DB2_REGISTRY_NAME} == null]]></expression>
+						<targetState>Skipped</targetState>
+					</extendStateExpression>
+					<extendStateExpression>
+						<description>Skip this step if registry name is null string</description>
+						<expression><![CDATA[ ${instance_DB2_REGISTRY_NAME} == ""]]></expression>
+						<targetState>Skipped</targetState>
+					</extendStateExpression>
+				</targetStateSet>
+			</condition>
+			
+			<instructions substitution="true">Submit REST call to execute step</instructions>
+			<weight>10</weight>
+			<skills>SCR</skills>
+			<autoEnable>true</autoEnable>
+			<rest>
+				<httpMethod>GET</httpMethod>
+				<uriPath substitution="true">/zosmf/provisioning/rest/1.0/scr/${instance-DB2_REGISTRY_ID}/key-value-variables/</uriPath>			
+				<expectedStatusCode>200</expectedStatusCode>
+				<propertyMapping mapTo="DB2_LOCATION">["variables"]["location"]</propertyMapping>	
+	            <propertyMapping mapTo="DB2_JDBC_DRIVER">["variables"]["jdbcDriverPath"]</propertyMapping>
+	            <propertyMapping mapTo="DB2_HLQ">["variables"]["HLQ"]</propertyMapping>	
+	            <propertyMapping mapTo="DB2_USERID">["variables"]["userName"]</propertyMapping>	
+	            <propertyMapping mapTo="DB2_PASSWORD">["variables"]["password"]</propertyMapping>
+	            <propertyMapping mapTo="DB2_HOSTNAME">["variables"]["hostName"]</propertyMapping>	
+	            <propertyMapping mapTo="DB2_PORT">["variables"]["portNumber"]</propertyMapping>	
+			</rest>
+		</step>	
+	</step>
+	
 	<step name="copyScript">
     <title>Copy Script</title>
-	<description>Copy script to temp directory with unique name</description>
+	<description>Copy provisioning script to temp directory with a unique name. This will be called from subsequent steps to perform
+				 various operations to setup the Liberty server. This step is intentionally performed after the steps above so that 
+				 most runtime variables would be set and could be auto-resolved in the script. </description>
 	    
 	    <step name="copyProvisionScript">
 		    <title>Copy Provision Script</title>
@@ -479,7 +565,7 @@
 	        <title>Set group permissions</title>
 	        <description>Set group permissions on the new directory for this server instance</description>
 	        <condition>
-			    <expression><![CDATA[${resolveUserDir.stepState}=="Complete"]]></expression>
+			    <expression><![CDATA["1" == "1"]]></expression>
 			    <description>Only perform when the directory name is resolved</description>
                 <targetStateSet>
 					<description>Only provide group access if requested</description>
@@ -513,7 +599,7 @@
 	        <runAsUser substitution="true">$!{instance-MOUNT_RUN_AS_ID}</runAsUser>
 	        <approver substitution="true">$!{instance-MOUNT_APPROVAL_ID}</approver>
 			<condition>
-			    <expression><![CDATA[${resolveUserDir.stepState}=="Complete"]]></expression>
+			    <expression><![CDATA["1" == "1"]]></expression>
 			    <description>Check if a new ZFS needs to be created</description>
                 <targetStateSet>
 					<description>Check if a new ZFS needs to be created</description>
@@ -562,13 +648,25 @@
         
         <step name="copyServerConfig">
 		    <title>Copy Server Config</title>
-	        <description>Copy the server.xml template</description>
+	        <description>Copy the server.xml file</description>
 	        <instructions substitution="true">Click Finish to copy the config</instructions>
 	        <weight>1</weight>
 	        <autoEnable>true</autoEnable>
 	        <template>
 	            <fileTemplate substitution="true">config/server.xml</fileTemplate>
 	            <saveAsUnixFile substitution="true">${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/server.xml</saveAsUnixFile>
+	        </template>
+        </step>
+        
+        <step name="copyBootstrapProperties">
+		    <title>Copy Bootstrap Properties</title>
+	        <description>Copy the bootstrap.properties file and auto resolve the variable names</description>
+	        <instructions substitution="true">Click Finish to copy the file</instructions>
+	        <weight>1</weight>
+	        <autoEnable>true</autoEnable>
+	        <template>
+	            <fileTemplate substitution="true">config/bootstrap.properties</fileTemplate>
+	            <saveAsUnixFile substitution="true">${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/bootstrap.properties</saveAsUnixFile>
 	        </template>
         </step>
         
@@ -601,7 +699,7 @@
 	        <runAsUser substitution="true">$!{instance-SECURITY_RUN_AS_ID}</runAsUser>
 	        <approver substitution="true">$!{instance-SECURITY_APPROVAL_ID}</approver>
 			<condition>
-			    <expression><![CDATA[${createLibertyServer.stepState}=="Complete"]]></expression>
+			    <expression><![CDATA["1" == "1"]]></expression>
 			    <description>Only perform when the Liberty server is created</description>
                 <targetStateSet>
 					<description>Only create certificate and keyring if requested</description>
@@ -626,7 +724,7 @@
 		    <title>Copy SAF Keystore Config</title>
 	        <description>Copy the keystore_saf.xml template</description>
 	        <condition>
-			    <expression><![CDATA[${createLibertyServer.stepState}=="Complete"]]></expression>
+			    <expression><![CDATA["1" == "1"]]></expression>
 			    <description>Only perform when the Liberty server is created</description>
                 <targetStateSet>
 					<description>Only create certificate and keyring if requested</description>
@@ -650,7 +748,7 @@
 		    <title>Copy Default Keystore Config</title>
 	        <description>Copy the keystore_default.xml template</description>
 	        <condition>
-			    <expression><![CDATA[${createLibertyServer.stepState}=="Complete"]]></expression>
+			    <expression><![CDATA["1" == "1"]]></expression>
 			    <description>Only perform when the Liberty server is created</description>
 				<targetStateSet>
 					<description>Copy default keystore if SAF option was not selected</description>
@@ -697,91 +795,41 @@
 	<step name="configureDB2Bind">
 		<title>Configure DB2 Bind</title>
 		<description>If requested, get DB2 registry data needed to bind to a DB2 data source</description>
-		
-	    <step name="getObjectID">
-			<title>Get DB2 object id</title>
-			<description>
-				Invoke RESTful API to determine the object id of the registry entry.
-			</description>
-
-			<condition>
-			    <expression><![CDATA[${createLibertyServer.stepState}=="Complete"]]></expression>
-			    <description>Only perform when the Liberty server is created</description>
-                <targetStateSet>
-					<description>Only bind to DB2 if requested</description>
-					<extendStateExpression>
-						<description>Skip this step if registry name is null</description>
-						<expression><![CDATA[ ${instance_DB2_REGISTRY_NAME} == null]]></expression>
-						<targetState>Skipped</targetState>
-					</extendStateExpression>
-					<extendStateExpression>
-						<description>Skip this step if registry name is null string</description>
-						<expression><![CDATA[ ${instance_DB2_REGISTRY_NAME} == ""]]></expression>
-						<targetState>Skipped</targetState>
-					</extendStateExpression>
-				</targetStateSet>
-			</condition>
-			
-			<instructions substitution="true">Submit REST call to execute step</instructions>
-			<weight>10</weight>
-			<skills>SCR</skills>
-			<autoEnable>true</autoEnable>
-			<rest>
-				<httpMethod>GET</httpMethod>
-				<uriPath>/zosmf/provisioning/rest/1.0/scr/</uriPath>
-				<queryParameters substitution="true">external-name=${instance-DB2_REGISTRY_NAME}</queryParameters>
-				<expectedStatusCode>200</expectedStatusCode>
-				<propertyMapping mapTo="DB2_REGISTRY_ID">["scr-list"][0]["object-id"]</propertyMapping> 
-			</rest>
-		</step>
-		
-		<step name="getVariables">
-			<title>Get necessary DB2 data</title>
-			<description>
-				Invoke RESTful API to fetch the variables in the registry entry.
-			</description>
-			
-			<condition>
-			    <expression><![CDATA[${createLibertyServer.stepState}=="Complete"]]></expression>
-			    <description>Only perform when the Liberty server is created</description>
-                <targetStateSet>
-					<description>Only bind to DB2 if requested</description>
-					<extendStateExpression>
-						<description>Skip this step if registry name is null</description>
-						<expression><![CDATA[ ${instance_DB2_REGISTRY_NAME} == null]]></expression>
-						<targetState>Skipped</targetState>
-					</extendStateExpression>
-					<extendStateExpression>
-						<description>Skip this step if registry name is null string</description>
-						<expression><![CDATA[ ${instance_DB2_REGISTRY_NAME} == ""]]></expression>
-						<targetState>Skipped</targetState>
-					</extendStateExpression>
-				</targetStateSet>
-			</condition>
-			
-			<instructions substitution="true">Submit REST call to execute step</instructions>
-			<weight>10</weight>
-			<skills>SCR</skills>
-			<autoEnable>true</autoEnable>
-			<rest>
-				<httpMethod>GET</httpMethod>
-				<uriPath substitution="true">/zosmf/provisioning/rest/1.0/scr/${instance-DB2_REGISTRY_ID}/key-value-variables/</uriPath>			
-				<expectedStatusCode>200</expectedStatusCode>
-				<propertyMapping mapTo="DB2_LOCATION">["variables"]["location"]</propertyMapping>	
-	            <propertyMapping mapTo="DB2_JDBC_DRIVER">["variables"]["jdbcDriverPath"]</propertyMapping>
-	            <propertyMapping mapTo="DB2_HLQ">["variables"]["HLQ"]</propertyMapping>	
-	            <propertyMapping mapTo="DB2_USERID">["variables"]["userName"]</propertyMapping>	
-	            <propertyMapping mapTo="DB2_PASSWORD">["variables"]["password"]</propertyMapping>
-	            <propertyMapping mapTo="DB2_HOSTNAME">["variables"]["hostName"]</propertyMapping>	
-	            <propertyMapping mapTo="DB2_PORT">["variables"]["portNumber"]</propertyMapping>	
-			</rest>
-		</step>	
     
+    	<step name="copyDatasourceProperties">
+		    <title>Copy Datasource Properties</title>
+	        <description>Copy the datasource.properties file and auto resolve the variable names</description>
+	        <condition>
+			    <expression><![CDATA["1" == "1"]]></expression>
+			    <description>Only perform when the Liberty server is created</description>
+                <targetStateSet>
+					<description>Only bind to DB2 if requested</description>
+					<extendStateExpression>
+						<description>Skip this step if registry name is null</description>
+						<expression><![CDATA[ ${instance_DB2_REGISTRY_NAME} == null]]></expression>
+						<targetState>Skipped</targetState>
+					</extendStateExpression>
+					<extendStateExpression>
+						<description>Skip this step if registry name is null string</description>
+						<expression><![CDATA[ ${instance_DB2_REGISTRY_NAME} == ""]]></expression>
+						<targetState>Skipped</targetState>
+					</extendStateExpression>
+				</targetStateSet>
+			</condition>
+			<instructions substitution="true">Click Finish to copy the file</instructions>
+	        <weight>1</weight>
+	        <autoEnable>true</autoEnable>
+	        <template>
+	            <fileTemplate substitution="true">config/datasource.properties</fileTemplate>
+	            <saveAsUnixFile substitution="true">${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/datasource.properties</saveAsUnixFile>
+	        </template>
+        </step>
+        
         <step name="copyDB2Type4Config">
 		    <title>Copy DB2 Type 4 Config</title>
 	        <description>Copy the datasource_type4.xml template</description>
 	        <condition>
-			    <expression><![CDATA[${createLibertyServer.stepState}=="Complete"]]></expression>
+			    <expression><![CDATA["1" == "1"]]></expression>
 			    <description>Only perform when the Liberty server is created</description>
                 <targetStateSet>
 					<description>Only bind to DB2 if requested</description>
@@ -810,7 +858,7 @@
 		    <title>Copy DB2 Type 2 Config</title>
 	        <description>Copy the datasource_type2.xml template</description>
 	        <condition>
-			    <expression><![CDATA[${createLibertyServer.stepState}=="Complete"]]></expression>
+			    <expression><![CDATA["1" == "1"]]></expression>
 			    <description>Only perform when the Liberty server is created</description>
                 <targetStateSet>
 					<description>Only bind to DB2 if requested</description>
@@ -839,7 +887,7 @@
 	        <title>Add Datasource Configuration</title>
 	        <description>Update the provisioned server's configuration</description>
 			<condition>
-			    <expression><![CDATA[${createLibertyServer.stepState}=="Complete"]]></expression>
+			    <expression><![CDATA["1" == "1"]]></expression>
 			    <description>Only perform when the Liberty server is created</description>
                 <targetStateSet>
 					<description>Only bind to DB2 if requested</description>
@@ -861,9 +909,9 @@
 	        <template>
             <inlineTemplate substitution="true">
             if [ "${instance-WLP_USER}" = $(whoami) ]; then
-                ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureDatasource ${instance-DB2_HLQ}
+                ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureDatasource 
             else
-                su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureDatasource ${instance-DB2_HLQ}"
+                su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureDatasource"
             fi
             </inlineTemplate>
             <submitAs>shell-JCL</submitAs>
@@ -880,7 +928,7 @@
 	        <title>Configure Server Proc</title>
 	        <description>Configure the proc used to start this server instance</description>
 			<condition>
-            	<expression><![CDATA[${createLibertyServer.stepState}=="Complete"]]></expression>
+            	<expression><![CDATA["1" == "1"]]></expression>
             	<description>Only perform check if server has been created</description>
             	<targetStateSet>
 		        	<description>Set state to Skipped if START_SERVER_AS_STARTED_TASK does not equal TRUE</description>
@@ -897,9 +945,9 @@
 			<template>
 		    	<inlineTemplate substitution="true">
             if [ "${instance-WLP_USER}" = $(whoami) ]; then
-                ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureServerProc ${instance-DB2_HLQ}
+                ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureServerProc
             else
-                su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureServerProc ${instance-DB2_HLQ}"
+                su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --configureServerProc"
             fi
             	</inlineTemplate>
             	<submitAs>shell-JCL</submitAs>
@@ -912,7 +960,7 @@
        		<runAsUser substitution="true">$!{instance-PROCLIB_RUN_AS_ID}</runAsUser>    
        		<approver substitution="true">$!{instance-PROCLIB_APPROVAL_ID}</approver>                    
             <condition>
-            	<expression><![CDATA[${createLibertyServer.stepState}=="Complete"]]></expression>
+            	<expression><![CDATA["1" == "1"]]></expression>
             	<description>Only perform check if server has been created</description>
             	<targetStateSet>
 		        	<description>Set state to Skipped if START_SERVER_AS_STARTED_TASK does not equal TRUE</description>
@@ -934,8 +982,6 @@
        
 	</step>
 	
-	
-	
 	<step name="configureSAFSecurityProfiles">
         <title>Configure SAF Security</title>
         <description>Configure the new Liberty server for z/OS authentication to the angel</description>
@@ -954,7 +1000,7 @@
 	    <title>Install Apps</title>
         <description>Install default applications if specified</description>  
         <condition>
-			    <expression><![CDATA[${createLibertyServer.stepState}=="Complete"]]></expression>
+			    <expression><![CDATA["1" == "1"]]></expression>
 			    <description>Only perform when the Liberty server is created</description>
                 <targetStateSet>
 					<description>Only install apps if requested</description>
@@ -992,7 +1038,7 @@
         	<title>Start the server from command line</title>
         	<description>Submit script to start the server</description>
         	<condition>
-         		<expression><![CDATA[${createLibertyServer.stepState}=="Complete"]]></expression>
+         		<expression><![CDATA["1" == "1"]]></expression>
          		<description>Only perform check if previous step has completed</description>
          		<targetStateSet>
        				<description>Set state to Skipped if START_SERVER_AS_STARTED_TASK does not equal TRUE</description>
@@ -1014,7 +1060,7 @@
         	<template>
             	<inlineTemplate substitution="true">
             if [ "${instance-WLP_USER}" = $(whoami) ]; then
-                ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --start ${instance-WLP_USER_DIR}
+                ${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --start
             else
                 su -s ${instance-WLP_USER} -c "${instance-TEMP_DIR}/wlp-${instance-WLP_USER}-${_workflow-softwareServiceInstanceName}-wlp-provisioning.sh --start"
             fi
@@ -1029,7 +1075,7 @@
         	<runAsUser substitution="true">$!{instance-CONSOLE_RUN_AS_ID}</runAsUser>
         	<approver substitution="true">$!{instance-CONSOLE_APPROVAL_ID}</approver>
 			<condition>
-         		<expression><![CDATA[${createLibertyServer.stepState}=="Complete"]]></expression>
+         		<expression><![CDATA["1" == "1"]]></expression>
          		<description>Only perform check if previous step has completed</description>
          		<targetStateSet>
        				<description>Set state to Skipped if START_SERVER_AS_STARTED_TASK does not equal TRUE</description>

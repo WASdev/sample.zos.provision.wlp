@@ -52,6 +52,53 @@
             <submitAs>shell-JCL</submitAs>
         </template>
 	</step> 
+	
+	<step name="db2_getObjectID">
+		<title>Get DB2 object id</title>
+		<description>
+			Invoke RESTful API to determine the object id of the registry entry.
+		</description>
+		
+		<instructions substitution="false">
+			Click Finish to perform the request to get the registry entry object id.
+		</instructions>
+		<weight>10</weight>
+		<skills>SCR</skills>
+		<autoEnable>true</autoEnable>
+		<rest>
+			<httpMethod>GET</httpMethod>
+			<uriPath>/zosmf/provisioning/rest/1.0/scr/</uriPath>
+			<queryParameters substitution="true">external-name=${instance-DB2_REGISTRY_NAME}</queryParameters>
+			<expectedStatusCode>200</expectedStatusCode>
+			<propertyMapping mapTo="DB2_REGISTRY_ID">["scr-list"][0]["object-id"]</propertyMapping> 
+		</rest>
+	</step>
+	
+	<step name="db2_getVariables">
+		<title>Get necessary DB2 data</title>
+		<description>
+			Invoke RESTful API to fetch the variables in the registry entry.
+		</description>
+		
+		<instructions substitution="false">
+			Click Finish to perform the request to get the registry entry variable values.
+		</instructions>
+		<weight>10</weight>
+		<skills>SCR</skills>
+		<autoEnable>true</autoEnable>
+		<rest>
+			<httpMethod>GET</httpMethod>
+			<uriPath substitution="true">/zosmf/provisioning/rest/1.0/scr/${instance-DB2_REGISTRY_ID}/key-value-variables/</uriPath>			
+			<expectedStatusCode>200</expectedStatusCode>
+			<propertyMapping mapTo="DB2_LOCATION">["variables"]["location"]</propertyMapping>	
+            <propertyMapping mapTo="DB2_JDBC_DRIVER">["variables"]["jdbcDriverPath"]</propertyMapping>	
+            <propertyMapping mapTo="DB2_HLQ">["variables"]["HLQ"]</propertyMapping>	
+            <propertyMapping mapTo="DB2_USERID">["variables"]["userName"]</propertyMapping>	
+	        <propertyMapping mapTo="DB2_PASSWORD">["variables"]["password"]</propertyMapping>
+	        <propertyMapping mapTo="DB2_HOSTNAME">["variables"]["hostName"]</propertyMapping>	
+	        <propertyMapping mapTo="DB2_PORT">["variables"]["portNumber"]</propertyMapping>	
+		</rest>
+	</step>	
     
     <step name="copyScript">
     <title>Copy Script</title>
@@ -257,54 +304,19 @@
          <submitAs>JCL</submitAs>                                                          
        </template>                                                                            
     </step>
-    
-    <step name="db2_getObjectID">
-		<title>Get DB2 object id</title>
-		<description>
-			Invoke RESTful API to determine the object id of the registry entry.
-		</description>
-		
-		<instructions substitution="false">
-			Click Finish to perform the request to get the registry entry object id.
-		</instructions>
-		<weight>10</weight>
-		<skills>SCR</skills>
-		<autoEnable>true</autoEnable>
-		<rest>
-			<httpMethod>GET</httpMethod>
-			<uriPath>/zosmf/provisioning/rest/1.0/scr/</uriPath>
-			<queryParameters substitution="true">external-name=${instance-DB2_REGISTRY_NAME}</queryParameters>
-			<expectedStatusCode>200</expectedStatusCode>
-			<propertyMapping mapTo="DB2_REGISTRY_ID">["scr-list"][0]["object-id"]</propertyMapping> 
-		</rest>
-	</step>
-	
-	<step name="db2_getVariables">
-		<title>Get necessary DB2 data</title>
-		<description>
-			Invoke RESTful API to fetch the variables in the registry entry.
-		</description>
-		
-		<instructions substitution="false">
-			Click Finish to perform the request to get the registry entry variable values.
-		</instructions>
-		<weight>10</weight>
-		<skills>SCR</skills>
-		<autoEnable>true</autoEnable>
-		<rest>
-			<httpMethod>GET</httpMethod>
-			<uriPath substitution="true">/zosmf/provisioning/rest/1.0/scr/${instance-DB2_REGISTRY_ID}/key-value-variables/</uriPath>			
-			<expectedStatusCode>200</expectedStatusCode>
-			<propertyMapping mapTo="DB2_LOCATION">["variables"]["location"]</propertyMapping>	
-            <propertyMapping mapTo="DB2_JDBC_DRIVER">["variables"]["jdbcDriverPath"]</propertyMapping>	
-            <propertyMapping mapTo="DB2_HLQ">["variables"]["HLQ"]</propertyMapping>	
-            <propertyMapping mapTo="DB2_USERID">["variables"]["userName"]</propertyMapping>	
-	        <propertyMapping mapTo="DB2_PASSWORD">["variables"]["password"]</propertyMapping>
-	        <propertyMapping mapTo="DB2_HOSTNAME">["variables"]["hostName"]</propertyMapping>	
-	        <propertyMapping mapTo="DB2_PORT">["variables"]["portNumber"]</propertyMapping>	
-		</rest>
-	</step>	
 	    
+   <step name="copyDatasourceProperties">
+		    <title>Copy Datasource Properties</title>
+	        <description>Copy the datasource.properties file and auto resolve the variable names</description>
+			<instructions substitution="true">Click Finish to copy the file</instructions>
+	        <weight>1</weight>
+	        <autoEnable>true</autoEnable>
+	        <template>
+	            <fileTemplate substitution="true">config/datasource.properties</fileTemplate>
+	            <saveAsUnixFile substitution="true">${instance-WLP_USER_DIR}/servers/${_workflow-softwareServiceInstanceName}/datasource.properties</saveAsUnixFile>
+	        </template>
+        </step>
+        
    <step name="copyDB2Type4Config">
 	    <title>Copy DB2 Type 4 Config</title>
         <description>Copy the datasource_type4.xml template</description>
