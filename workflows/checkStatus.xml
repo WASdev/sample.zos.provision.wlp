@@ -36,14 +36,14 @@
     <workflowInfo>
         <workflowID>checkStatus</workflowID>
         <workflowDescription>Procedure to check if the Liberty server is active</workflowDescription>
-        <workflowVersion>@WORKFLOWVERSION@</workflowVersion>
+        <workflowVersion>1.0</workflowVersion>
         <vendor>IBM</vendor>
         <Provisioning>
-            <productID>@CICSPID###@</productID>
-            <productName>@PRODNAME@</productName>
-            <productVersion>@CICSRELEASE@</productVersion>
-            <softwareType>CICS</softwareType>
-        </Provisioning>
+          <productID>zosLiberty</productID>
+          <productName>Liberty for z/OS</productName>
+          <productVersion>Version 9</productVersion>
+          <softwareType>WLP</softwareType>
+      </Provisioning>
     </workflowInfo>
 
     <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
@@ -52,7 +52,7 @@
 	&variables;
     
     <step name="checkStatusStartedTask" optional="false">
-        <title>Check if the Liberty server is active</title>
+        <title>Check Liberty Server Status</title>
         <description>Check if Liberty is already active</description>
        	<runAsUser substitution="true">$!{instance-CONSOLE_RUN_AS_ID}</runAsUser>
         <approver substitution="true">$!{instance-CONSOLE_APPROVAL_ID}</approver>
@@ -86,8 +86,8 @@
     </step>
 
 
-    <step name="checkStatusNoStartedTask">
-        <title>Check if the Liberty server is active</title>
+    <step name="checkStatusUSS">
+        <title>Check Liberty Server Status</title>
         <description>Check if Liberty is already active</description>
 		<condition>
        		<expression><![CDATA["1" == "1"]]></expression>
@@ -123,12 +123,12 @@
         </template>
     </step>
 
-    <step name="updateWorkflowVariable">
-        <title>Update SERVER_STOP_STATUS workflow variable</title>
+    <step name="updateStatus">
+        <title>Update Status</title>
         <description>Set SERVER_STOP_STATUS workflow variable with result of check of server status</description>
-        <prereqStep name="checkStatusNoStartedTask"/>
+        <prereqStep name="checkStatusUSS"/>
 		<condition>
-	        <expression><![CDATA[ ${checkStatusNoStartedTask.stepState}=="Complete" || ${checkStatusNoStartedTask.stepState}=="Skipped"]]></expression>
+	        <expression><![CDATA[ ${checkStatusUSS.stepState}=="Complete" || ${checkStatusUSS.stepState}=="Skipped"]]></expression>
        		<description/>
        		<targetStateSet>
   				<description>Set state to Skipped if START_SERVER_AS_STARTED_TASK equals TRUE</description>
@@ -154,9 +154,9 @@
     <step name="removeStatusOutputFile">
         <title>Remove Status Output File</title>
         <description>Remove the temp file created</description>
-        <prereqStep name="updateWorkflowVariable"/>
+        <prereqStep name="updateStatus"/>
 		<condition>
-	        <expression><![CDATA[ ${checkStatusNoStartedTask.stepState}=="Complete" || ${checkStatusNoStartedTask.stepState}=="Skipped"]]></expression>
+	        <expression><![CDATA[ ${checkStatusUSS.stepState}=="Complete" || ${checkStatusUSS.stepState}=="Skipped"]]></expression>
        		<description/>
        		<targetStateSet>
   				<description>Set state to Skipped if START_SERVER_AS_STARTED_TASK equals TRUE</description>
@@ -181,10 +181,10 @@
     </step>
 
     <step name="UpdateStateInstanceVariable" optional="false">
-        <title>Update instance variable to indicate if Liberty is active</title>
+        <title>Update State Instance Variable</title>
         <description>Make REST API call to update instance variable indicating if Liberty is active</description>
         <prereqStep name="checkStatusStartedTask"/>
-        <prereqStep name="updateWorkflowVariable"/>
+        <prereqStep name="updateStatus"/>
         <instructions>Call REST API to update instance variable</instructions>
         <weight>1</weight>
         <autoEnable>true</autoEnable>
@@ -199,7 +199,7 @@
                 #end
                 {
    					"variables":[
-      					{"name":"STATUS","value":"${state}","visibility":"public"}
+      					{"name":"INSTANCE_STATUS","value":"${state}","visibility":"public"}
    					]
 				}
             </requestBody>

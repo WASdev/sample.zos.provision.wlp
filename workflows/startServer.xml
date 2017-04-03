@@ -33,12 +33,12 @@
     <!--++++++++++++++++++++++-->
     <!--   Stop the Server    -->
     <!--++++++++++++++++++++++-->  
-    <step name="copyScript">
-    <title>Copy Script</title>
+    <step name="copyProvisioningScript">
+    <title>Copy Provisioning Script</title>
 	<description>Copy script to temp directory with unique name</description>
 	    
-	    <step name="copyProvisionScript">
-		    <title>Copy Provision Script</title>
+	    <step name="copyScript">
+		    <title>Copy Script</title>
 	        <description>Copy the wlp-provisioning.sh script</description>
 	        <instructions substitution="false">Copy the wlp-provisioning.sh script to the tmp directory with a name unique to this workflow</instructions>
 	        <weight>1</weight>
@@ -65,11 +65,11 @@
     </step>
 	    
     <step name="startServer">
-        <title>Start the server</title>
+        <title>Start the Server</title>
         <description>Start the server</description>
         
-        <step name="startServer_script">
-        	<title>Start the server from command line</title>
+        <step name="startServer_USS">
+        	<title>Start the Server from USS</title>
         	<description>Submit script to start the server</description>
         	<condition>
          		<expression><![CDATA[${copyScript.stepState}=="Complete"]]></expression>
@@ -99,7 +99,7 @@
         </step>
         
         <step name="startServer_console">
-        	<title>Start the server from console</title>
+        	<title>Start the Server from Console</title>
         	<description>Start the server from the console</description>
         	<runAsUser substitution="true">$!{instance-CONSOLE_RUN_AS_ID}</runAsUser>
 	        <approver substitution="true">$!{instance-CONSOLE_APPROVAL_ID}</approver>

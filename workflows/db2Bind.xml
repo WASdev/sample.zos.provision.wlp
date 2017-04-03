@@ -36,8 +36,8 @@
     <!--   DB2 Bind Steps     -->
     <!--++++++++++++++++++++++-->
     
-    <step name="checkCurrentBinding">
-	    <title>Check current binding</title>
+    <step name="checkCurrentDatasourceBinding">
+	    <title>Check Current Datasource Binding</title>
         <description>Check if the server is already bound to a datasource</description>
         <instructions substitution="true">Submit shell script to execute step</instructions>
         <weight>1</weight>
@@ -53,8 +53,8 @@
         </template>
 	</step> 
 	
-	<step name="db2_getObjectID">
-		<title>Get DB2 object id</title>
+	<step name="getDB2Registry">
+		<title>Get DB2 Registry</title>
 		<description>
 			Invoke RESTful API to determine the object id of the registry entry.
 		</description>
@@ -74,8 +74,8 @@
 		</rest>
 	</step>
 	
-	<step name="db2_getVariables">
-		<title>Get necessary DB2 data</title>
+	<step name="GetDB2Info">
+		<title>Get DB2 Info</title>
 		<description>
 			Invoke RESTful API to fetch the variables in the registry entry.
 		</description>
@@ -100,12 +100,12 @@
 		</rest>
 	</step>	
     
-    <step name="copyScript">
-    <title>Copy Script</title>
+    <step name="copyProvisioningScript">
+    <title>Copy Provisioning Script</title>
 	<description>Copy script to temp directory with unique name</description>
 	    
-	    <step name="copyProvisionScript">
-		    <title>Copy Provision Script</title>
+	    <step name="copyScript">
+		    <title>Copy Script</title>
 	        <description>Copy the wlp-provisioning.sh script</description>
 	        <instructions substitution="false">Copy the wlp-provisioning.sh script to the tmp directory with a name unique to this workflow</instructions>
 	        <weight>1</weight>
@@ -131,11 +131,11 @@
     </step>  
     
         <step name="stopServer">
-        <title>Stop the server</title>
+        <title>Stop the Server</title>
         <description>Stop any existing Liberty servers for this user</description>
 		
-		<step name="stopServer_script">
-        	<title>Stop the server from the command line</title>
+		<step name="stopServer_USS">
+        	<title>Stop the Server from USS</title>
         	<description>Submit script to stop any existing Liberty servers for this user</description>
 			<condition>
          		<expression><![CDATA[${copyScript.stepState}=="Complete"]]></expression>
@@ -165,11 +165,11 @@
     	</step>
     	
     	<step name="stopServer_console">
-        	<title>Stop the server from the console</title>
+        	<title>Stop the Server from Console</title>
         	<description>Issue a stop command for the server. If the command fails, issue a cancel</description>
 	        	
 	        <step name="issue_stop">
-	        	<title>Issue stop command</title>
+	        	<title>Issue Stop Command</title>
 	        	<description>Issue a stop command for the server.</description>
 	        	<runAsUser substitution="true">$!{instance-CONSOLE_RUN_AS_ID}</runAsUser>
 		        <approver substitution="true">$!{instance-CONSOLE_APPROVAL_ID}</approver>
@@ -205,7 +205,7 @@
 	    	</step>
 	    	
 	    	<step name="check_status">
-	        	<title>Check server status</title>
+	        	<title>Check Server Status</title>
 	        	<description>Check to see if the server job is still running</description>
 	        	<runAsUser substitution="true">$!{instance-CONSOLE_RUN_AS_ID}</runAsUser>
 		        <approver substitution="true">$!{instance-CONSOLE_APPROVAL_ID}</approver>
@@ -240,7 +240,7 @@
 	    	</step>
 	    	
 	    	<step name="issue_cancel">
-	        	<title>Issue cancel command</title>
+	        	<title>Issue Cancel Command</title>
 	        	<description>Cancel the server if it is still running</description>
 	        	<runAsUser substitution="true">$!{instance-CONSOLE_RUN_AS_ID}</runAsUser>
 		        <approver substitution="true">$!{instance-CONSOLE_APPROVAL_ID}</approver>
@@ -365,9 +365,9 @@
         </template>
     </step>
     
-    <step name="addDatasourceConfiguration">
-	    <title>Add Datasource Configuration</title>
-        <description>Update the provisioned server's configuration</description>
+    <step name="processDatasourceConfiguration">
+	    <title>Process Datasource Configuration</title>
+        <description>Convert XML and create additional configuration files</description>
         <instructions substitution="true">Submit shell script to execute step</instructions>
         <weight>1</weight>
         <autoEnable>true</autoEnable>
@@ -384,7 +384,7 @@
 	</step> 
     
     <step name="addSteplibToProc">
-        <title>Add STEPLIB to proc</title>
+        <title>Add STEPLIB to Proc</title>
         <description>Update the proc jcl with the STEPLIB statements</description>
         <condition>
             	<expression><![CDATA[${copyScript.stepState}=="Complete"]]></expression>
@@ -438,11 +438,11 @@
        </step>
        
        <step name="startServer">
-        <title>Start the server</title>
+        <title>Start the Server</title>
         <description>Start the server</description>
         
-        <step name="startServer_script">
-        	<title>Start the server from the command line</title>
+        <step name="startServer_USS">
+        	<title>Start the Server from USS</title>
         	<description>Submit script to start the server</description>
         	<condition>
          		<expression><![CDATA[${copyScript.stepState}=="Complete"]]></expression>
@@ -472,7 +472,7 @@
         </step>
         
         <step name="startServer_console">
-        	<title>Start the server from the console</title>
+        	<title>Start the Server from Console</title>
         	<description>Start the server from the console</description>
         	<runAsUser substitution="true">$!{instance-CONSOLE_RUN_AS_ID}</runAsUser>
         	<approver substitution="true">$!{instance-CONSOLE_APPROVAL_ID}</approver>
@@ -508,8 +508,8 @@
     	</step>
     </step>
     
-    <step name="updateRegistryVariables">
-		<title>Update DB2 Variable in Registry</title>
+    <step name="updateDB2Variables">
+		<title>Update DB2 Variables</title>
 		<description>
 		Invoke RESTful API to update the db2 variable in the registry.
 		</description>

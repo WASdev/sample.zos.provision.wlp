@@ -479,5 +479,13 @@
         </string>
     </variable>
     
+    <variable name="ZOSPT_IMAGE_LOCATION" scope="instance" visibility="private">
+        <label>IMAGE_LOCATION</label>
+        <abstract>Location of an image</abstract>
+        <description>Location of an image in tar file format.</description>
+        <category>ZOSPT</category>
+        <string/>
+    </variable>
+    
     
            
