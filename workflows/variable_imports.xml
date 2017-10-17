@@ -467,7 +467,7 @@
     <!--   ZOSPT specific vairables   -->
     <!--++++++++++++++++++++++++++++++-->
     
-    <variable name="ZOSPT_VERSION_SUPPORTED" scope="global" visibility="public">
+    <variable name="ZOSPT_VERSION_SUPPORTED" scope="instance" visibility="public">
         <label>ZOSPT_VERSION_SUPPORTED</label>
         <abstract>z/OS Provisioning Toolkit specification level supported</abstract>
         <description>The version number of the z/OS Provisioning Toolkit specification supported by the template.</description>
