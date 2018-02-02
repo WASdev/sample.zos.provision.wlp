@@ -558,7 +558,9 @@
 		    	<inlineTemplate substitution="true">
 			    mkdir ${instance-WLP_USER_DIR}
                 chmod 700 ${instance-WLP_USER_DIR}
-                chown ${instance-WLP_USER} ${instance-WLP_USER_DIR}
+                if [ "${instance-WLP_USER}" != $(whoami) ]; then
+    				chown ${instance-WLP_USER} ${instance-WLP_USER_DIR}
+				fi
 	           	</inlineTemplate>
 	           	<submitAs>shell-JCL</submitAs>
 	        </template>
