@@ -21,7 +21,7 @@
 	<Provisioning>
           <productID>zosLiberty</productID>
           <productName>Liberty for z/OS</productName>
-          <productVersion>Version 9</productVersion>
+          <productVersion>All versions</productVersion>
           <softwareType>WLP</softwareType>
       </Provisioning>
 </workflowInfo>
